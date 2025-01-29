@@ -51,6 +51,14 @@ export const App = () => {
         const signer = await provider.getSigner();
         const myContract = new ethers.Contract(contractAddress, abi, signer);
 
+        const tasks = await myContract.getMyTask();
+        const taskExists = tasks.some(task => task.id.toString() === deleteTasks);
+
+        if (!taskExists) {
+          toast.error("Task ID does not exist.");
+          return;
+        }
+
         const tx = await myContract.deleteTask(deleteTasks);
         await tx.wait();
         toast.success("Task Deleted Successfully!");
