@@ -67,10 +67,16 @@ export const App = () => {
       try {
         await requestAccounts();
         const provider = new ethers.BrowserProvider(window.ethereum);
-        const myContract = new ethers.Contract(contractAddress, abi, provider);
+        const signer = await provider.getSigner();
+        const myContract = new ethers.Contract(contractAddress, abi, signer);
 
         const tasks = await myContract.getMyTask();
-        setGetTask(tasks);
+        setGetTask(tasks.map(task => ({
+          id: task.id.toString(),
+          taskTitle: task.taskTitle,
+          taskText: task.taskText,
+          isDeleted: task.isDeleted
+        })));
         toast.success("Task Fetched Successfully!");
       } catch (err) {
         console.error("Transaction Failed", err);
@@ -128,7 +134,10 @@ export const App = () => {
             <ul className="task-list">
               {getTask.map((task, index) => (
                 <li key={index} className="task-item">
-                  <strong>{task.taskTitle}</strong>: {task.taskText} - {task.isDeleted ? "Deleted" : "Active"}
+                  <strong>ID: {task.id}</strong><br />
+                  <strong>Title:</strong> {task.taskTitle}<br />
+                  <strong>Description:</strong> {task.taskText}<br />
+                  <strong>Status:</strong> {task.isDeleted ? "Deleted" : "Active"}
                 </li>
               ))}
             </ul>
